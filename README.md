@@ -26,13 +26,13 @@ Code examples for various types of bots may be found here: https://github.com/sl
 ## Droid Interaction
 Droid responds to the following requests:
 
-* Weather in <city>
+* Weather in  **_city_**
 
-* Quote <stock symbol>
+* Quote **_stock symbol_**
 
-* TODO: <your to do item>
+* TODO: **_your to do item_**
 
-* Timer: <number of seconds>
+* Timer: **_number of seconds_**
 
 A user may also see the history of their interactions by asking Droid:
 
