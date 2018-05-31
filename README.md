@@ -12,14 +12,16 @@ The interaction with Droid is accumulated in a database, as shown in model.jpg. 
 ## Implementing a Slack Bot
 It is recommended that you create a new Workspace for your bot.
 
-Then create an app here https://api.slack.com/apps
+1. Then create an app here https://api.slack.com/apps
 
-Create a bot user (which is within your app)
+2. Create a bot user (which is within your app).
 
-Install the app in your workspace
+3. Install the app in your workspace.
 
-Copy the Bot User OAuth Access Token and exported it to your environment
+4. Copy the Bot User OAuth Access Token and export it to your environment:
 	export SLACK_API_TOKEN= <your api token>
+
+Note that if you quit your terminal, you will have to export the token again.
 
 Code examples for various types of bots may be found here: https://github.com/slack-ruby/slack-ruby-bot
 
