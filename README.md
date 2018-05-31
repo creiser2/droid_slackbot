@@ -11,9 +11,13 @@ The interaction with Droid is accumulated in a database, as shown in model.jpg. 
 
 ## Implementing a Slack Bot
 It is recommended that you create a new Workspace for your bot.
+
 Then create an app here https://api.slack.com/apps
+
 Create a bot user (which is within your app)
+
 Install the app in your workspace
+
 Copy the Bot User OAuth Access Token and exported it to your environment
 	export SLACK_API_TOKEN= <your api token>
 
@@ -21,13 +25,20 @@ Code examples for various types of bots may be found here: https://github.com/sl
 
 ## Droid Interaction
 Droid responds to the following requests:
+
 Weather in <city>
+
 Quote <stock symbol>
+
 TODO: <your to do item>
+
 Timer: <number of seconds>
 
 A user may also see the history of their interactions by asking Droid:
+
 Weather history
+
 Quote history
+
 TODO history
 
