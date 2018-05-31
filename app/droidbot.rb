@@ -21,6 +21,10 @@ class DroidBot < SlackRubyBot::Bot
     command 'TIMER: <time in seconds>' do
       "Set a timer that decrements in the chat"
     end
+
+    command '<weather/quote/todo> history' do
+      "View history of stock quotes, weather, or todo list that you have created"
+    end
   end
 
   match(/^weather in (?<location>\w*)/i) do |client, data, match|
