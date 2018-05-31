@@ -9,7 +9,9 @@ Stock quotes are provided by https://www.alphavantage.co/documentation/#time-ser
 
 The interaction with Droid is accumulated in a database, as shown in this diagram:
 
-![Droid Data Model](datamodel.png)
+<p align="center">
+  <img src="datamodel.png" width="500"/>
+</p>
 
 
 Droid knows the stock quotes, weather, and to-do items for each user.  The current to-do list is displayed each time an item is added.  Each day the to-do list starts over. 
