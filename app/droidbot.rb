@@ -35,6 +35,7 @@ class DroidBot < SlackRubyBot::Bot
     #get location weather state and temperature in different variables
     state = state_and_temp[:state]
     temp = state_and_temp[:temp]
+    failed = false
 
     case state
     when "Light Rain","Heavy Rain", "Hail", "Sleet", "Snow", "Showers"
@@ -47,12 +48,18 @@ class DroidBot < SlackRubyBot::Bot
       weather_text = "#{place} has #{state.downcase}s, the temperature is #{temp}°F."
     else
       weather_text = "#{state} for #{place}."
+      failed = true
     end
-    real_name = User.get_real_name(data.user, client.users)
-    if User.update_db(real_name, weather_text, "Weather")
-      client.say(channel: data.channel, text: weather_text)
+
+    if !failed
+      real_name = User.get_real_name(data.user, client.users)
+      if User.update_db(real_name, weather_text, "Weather")
+        client.say(channel: data.channel, text: weather_text)
+      else
+        client.say(channel: data.channel, text: "db update error")
+      end
     else
-      client.say(channel: data.channel, text: "db update error")
+      client.say(channel: data.channel, text: weather_text)
     end
   end
 
