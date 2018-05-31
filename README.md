@@ -7,7 +7,12 @@ Weather is provided by https://www.metaweather.com/api/
 
 Stock quotes are provided by https://www.alphavantage.co/documentation/#time-series-data
 
-The interaction with Droid is accumulated in a database, as shown in model.jpg.  Droid knows the stock quotes, weather, and to-do items for each user.  The current to-do list is displayed each time an item is added.  Each day the to-do list starts over. 
+The interaction with Droid is accumulated in a database, as shown in this diagram:
+
+![Droid Data Model](datamodel.png)
+
+
+Droid knows the stock quotes, weather, and to-do items for each user.  The current to-do list is displayed each time an item is added.  Each day the to-do list starts over. 
 
 ## Implementing a Slack Bot
 It is recommended that you create a new Workspace for your bot.
