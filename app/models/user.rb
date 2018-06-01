@@ -58,8 +58,8 @@ class User < ActiveRecord::Base
   end
 
   def self.get_history(tasktype, real_name)
-    weather_tasks = User.find_by(name: real_name).get_tasks_for_user(tasktype)
-    droid_out = Task.pretty_task_list(weather_tasks, real_name)
+    tasks = User.find_by(name: real_name).get_tasks_for_user(tasktype)
+    droid_out = Task.pretty_task_list(tasks, real_name)
     droid_out
   end
 

@@ -2,11 +2,13 @@
 require_relative '../config/environment.rb'
 
 class DroidBot < SlackRubyBot::Bot
+
+  #this will not work in public channels, must be in private app channel
   help do
     title 'Welcome to the Droid helper bot'
     desc "I can help you figure stuff out."
 
-    command 'Weather in <location>?' do
+    command 'Weather (in/at/of) <location>?' do
       "Display the weather for your area"
     end
 
@@ -27,32 +29,24 @@ class DroidBot < SlackRubyBot::Bot
     end
   end
 
-  match(/^weather in (?<location>\w*)/i) do |client, data, match|
-    place = data.text[11..data.text.length]
-    place = place.capitalize
-    state_and_temp = get_weather_for_location(place)
+  match(/(?<topic>\w*) history/i) do |client, data, match|
+    #find the history of a specific user's data by topic
+    real_name = User.get_real_name(data.user, client.users)
+    droid_out = DroidBot.output(match[:topic], real_name)
+    client.say(channel: data.channel, text: "#{droid_out}")
 
-    #get location weather state and temperature in different variables
-    state = state_and_temp[:state]
-    temp = state_and_temp[:temp]
-    failed = false
+  end
 
-    case state
-    when "Light Rain","Heavy Rain", "Hail", "Sleet", "Snow", "Showers"
-      weather_text = "#{place} has #{state.downcase}, the temperature is #{temp}°F."
-    when "Thunderstorm"
-      weather_text = "#{place} is having a #{state.downcase}, the temperature is #{temp}°F."
-    when "Clear"
-      weather_text = "The weather in #{place} is #{state.downcase}, the temperature is #{temp}°F."
-    when "Light Cloud", "Heavy Cloud"
-      weather_text = "#{place} has #{state.downcase}s, the temperature is #{temp}°F."
-    else
-      weather_text = "#{state} for #{place}."
-      failed = true
-    end
+  match(/weather (in |at |of )(?<location>.*)/i) do |client, data, match|
+    place = match[:location].capitalize
+    # state_and_temp = get_weather_for_location(place)
+    weather_text = get_weather_for_location(place)
 
-    if !failed
+    #if there is no API data for the location, !failed == false
+    if !weather_text.include?("No weather data")
       real_name = User.get_real_name(data.user, client.users)
+
+      #check to see if we can do an update on DB
       if User.update_db(real_name, weather_text, "Weather")
         client.say(channel: data.channel, text: weather_text)
       else
@@ -63,47 +57,43 @@ class DroidBot < SlackRubyBot::Bot
     end
   end
 
-  match(/(?<topic>\w*) history/i) do |client, data, match|
-    #find the history of a specific user's data by topic
-    real_name = User.get_real_name(data.user, client.users)
 
-    case match[:topic].downcase
-    when "weather"
-      #get history method in user class finds the history of a certain person with a certain task type
-      droid_out = User.get_history("Weather", real_name)
-      client.say(channel: data.channel, text: "#{droid_out}")
-    when "quote"
-      droid_out = User.get_history("Stock Quote", real_name)
-      client.say(channel: data.channel, text: "#{droid_out}")
-    when "todo"
-      droid_out = User.get_history("ToDo", real_name)
-      client.say(channel: data.channel, text: "#{droid_out}")
-    else
-      client.say(channel: data.channel, text: "I dont know the history of #{match[:topic]}.")
-    end
-  end
-
-  match(/^Quote (?<stock>\w*)/i) do |client, data, match|
+  match(/(quote |quote: |stock |stock: |stock of )(?<stock>.*)/i) do |client, data, match|
+    #Grab a stock quote from an API
     value = get_stock_value(match[:stock])
+
+    #No value exists, have client respond
     if !value
       client.say(channel: data.channel, text: "No quote found for #{match[:stock]}.")
     else
+      #if a value exists, round to 2 decimal places
       value = value.to_f.round(2)
-      task_name = "#{match[:stock]} is at $#{value}"
+      #get output string under droid out
+      droid_out = "#{match[:stock]} is at $#{value}"
       real_name = User.get_real_name(data.user, client.users)
-      if User.update_db(real_name, task_name, "Stock Quote")
-        client.say(channel: data.channel, text: task_name)
+
+      #if update successful, say droid out
+      if User.update_db(real_name, droid_out, "Stock Quote")
+        client.say(channel: data.channel, text: droid_out)
+
+      #update failed, prompt chat
       else
         client.say(channel: data.channel, text: "db update error")
       end
     end
   end
 
-  match(/^TODO: (?<TODO>\w*)/i) do |client, data, match|
-    todo = data.text[6..data.text.length]
+  #ToDo: add item to the todo list
+  match(/(ToDo: |To Do: |ToDo |To Do )(?<TODO>.*)/i) do |client, data, match|
+    #value after 'todo: '
+    todo = match[:TODO]
+    #the user.get_real_name function parses through client.users,
+    #matches with data.user which is some string of chars, and finds the real name of the user.
     real_name = User.get_real_name(data.user, client.users)
     if User.update_db(real_name, todo, "ToDo")
+      #formatted_tasks_from_user, comes back as an array ex: ["Walk Dogs","Go to Bed"]
       formatted_tasks_from_user = User.find_by(name: real_name).get_tasks_for_user("ToDo")
+      #pretty_task_list takes the array above, and concatenates it to be a readable output for the client to say
       droid_out = Task.pretty_task_list(formatted_tasks_from_user, real_name)
       client.say(channel: data.channel, text: "#{droid_out}")
     else
@@ -111,6 +101,7 @@ class DroidBot < SlackRubyBot::Bot
     end
   end
 
+  #Simple timer method makes bot countdown from user specified number
   match(/^TIMER: (?<time>\w*)/i) do |client, data, match|
     time = match[:time].to_i
     while time > 0
@@ -120,7 +111,25 @@ class DroidBot < SlackRubyBot::Bot
     end
     client.say(channel: data.channel, text: "Times up!")
   end
-end
 
+  def self.output(topic, real_name)
+    if topic == "droid"
+      droid_out = "*Weather Requests*\n" + User.get_history("Weather", real_name) + "\n"
+      droid_out += "*Stock Quotes*\n" + User.get_history("Stock Quote", real_name) + "\n"
+      droid_out += "*To Do*\n" + User.get_history("ToDo", real_name)
+      return droid_out
+    elsif topic.downcase == "weather"
+      droid_out = User.get_history("Weather", real_name)
+      return droid_out
+    elsif topic.downcase == "quote"
+      droid_out = User.get_history("Stock Quote", real_name)
+      return droid_out
+    else
+      droid_out = User.get_history("ToDo", real_name)
+      return droid_out
+    end
+  end
+
+end
 
 DroidBot.run
