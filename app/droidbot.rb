@@ -38,6 +38,7 @@ class DroidBot < SlackRubyBot::Bot
   end
 
   match(/weather (in |at |of )(?<location>.*)/i) do |client, data, match|
+    binding.pry
     place = match[:location].capitalize
     # state_and_temp = get_weather_for_location(place)
     weather_text = get_weather_for_location(place)
@@ -121,7 +122,7 @@ class DroidBot < SlackRubyBot::Bot
     elsif topic.downcase == "weather"
       droid_out = User.get_history("Weather", real_name)
       return droid_out
-    elsif topic.downcase == "quote"
+    elsif topic.downcase == "quote" || topic.downcase == "stock" || topic.downcase == "stock:"
       droid_out = User.get_history("Stock Quote", real_name)
       return droid_out
     else
