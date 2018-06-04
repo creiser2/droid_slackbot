@@ -50,3 +50,4 @@ A user may also see the history of their interactions by asking Droid:
 
 * TODO history
 
+This bot was created and tested using a specific key that can only be accessed as creator of the bot. In order to run, you must create a new bot, and apply your own bot key to the ENV file.
