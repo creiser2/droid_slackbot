@@ -1,4 +1,4 @@
-# Module One Final Project "Droid Bot"
+Project Droid Bot
 
 ## Overview
 Droid Bot implements a bot named "Droid" in Slack.  Droid can respond to requests for weather or stock quotes, build a to-do list, or run a timer.
